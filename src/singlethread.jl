@@ -4,7 +4,8 @@ function run_singlethread(num_sims::Integer) :: Float64
     acum = 0
 
     for _ in 1:num_sims
-        # x e y são escalares
+
+        # `x` and `y` are scalars
         x = rand(Float64)
         y = rand(Float64)
 

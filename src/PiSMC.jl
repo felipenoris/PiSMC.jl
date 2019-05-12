@@ -1,6 +1,5 @@
 module PiSMC
 
-#using Statistics: mean
 using Distributed
 
 include("naive.jl")
