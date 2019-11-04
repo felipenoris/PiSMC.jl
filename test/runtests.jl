@@ -9,7 +9,7 @@ using PiSMC
 # checks if we're running Julia in multithread mode
 PiSMC.Multithread.check_julia_num_threads()
 
-qty_workers = 4
+qty_workers = 8
 addprocs(qty_workers)
 
 @everywhere begin
@@ -26,16 +26,29 @@ addprocs(qty_workers)
 end
 
 @info("Started $(length(workers())) workers")
+@info("Threads available: $(nthreads())")
 
 num_sims = 100_000_000
 
-@info("naive...")
+let
+    naive_result = PiSMC.run_naive(num_sims)
+    singlethread_result = PiSMC.run_singlethread(num_sims)
+    multithread_result = PiSMC.Multithread.run_multithread(num_sims)
+    distributed_result = PiSMC.run_distributed(num_sims)
+
+    @info("Naive result: $naive_result")
+    @info("Singlethread result: $singlethread_result")
+    @info("Multithread result: $multithread_result")
+    @info("Distributed result: $distributed_result")
+end
+
+@info("Benchmarking naive...")
 naive_bench = @benchmark PiSMC.run_naive(num_sims)
-@info("singlethread...")
+@info("Benchmarking singlethread...")
 singlethread_bench = @benchmark PiSMC.run_singlethread(num_sims)
-@info("multithread...")
+@info("Benchmarking multithread...")
 multithread_bench = @benchmark PiSMC.Multithread.run_multithread(num_sims)
-@info("distributed...")
+@info("Benchmarking distributed...")
 distributed_bench = @benchmark PiSMC.run_distributed(num_sims)
 
 plt = barplot( [ "naive", "singlethread", "multithread ($(nthreads()) threads)", "Distributed ($qty_workers workers)"],
